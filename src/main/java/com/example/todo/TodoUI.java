@@ -3,10 +3,14 @@ package com.example.todo;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * Created by @author OGI aka nOy39
@@ -30,6 +34,8 @@ public class TodoUI extends UI {
         addForm();
         addTodoList();
         addActionButton();
+ //       addCalendar();
+        
     }
 
     private void addActionButton() {
@@ -51,6 +57,14 @@ public class TodoUI extends UI {
 
         TextField taskField = new TextField();
         taskField.setWidth("100%");
+
+        DateTimeField sample;
+        sample = new DateTimeField();
+        sample.setValue(LocalDateTime.now());
+        sample.addValueChangeListener(event -> Notification.show("Value changed:",
+                String.valueOf(event.getValue()),
+                Notification.Type.TRAY_NOTIFICATION));
+
         Button addButton = new Button("Add");
         addButton.setIcon(FontAwesome.PLUS);
         addButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -60,7 +74,7 @@ public class TodoUI extends UI {
             todoList.setTodo(taskField.getValue());
         });
 
-        formLayout.addComponents(taskField,addButton);
+        formLayout.addComponents(taskField,sample,addButton);
         formLayout.setExpandRatio(taskField,1);
         layout.addComponent(formLayout);
     }
