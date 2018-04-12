@@ -1,34 +1,51 @@
 package com.example.todo;
 
+import com.vaadin.spring.annotation.SpringComponent;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.VerticalLayout;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Created by @author OGI aka nOy39
- *
- * @Date 12.04.2018
- * @Time 13:48
- */
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Component
-public class TodoList extends VerticalLayout {
+@UIScope
+@SpringComponent
+class TodoList extends VerticalLayout implements TodoChangeListener {
+    @Autowired
+    TodoRepository repository;
+    private List<Todo> todos;
 
-    private boolean isReady;
-    private String todo;
+    @PostConstruct
+    void init() {
+        setWidth("80%");
 
-    public boolean isReady() {
-        return isReady;
+        update();
     }
 
-    public void setReady(boolean ready) {
-        isReady = ready;
+    private void update() {
+        setTodos(repository.findAll());
     }
 
-    public String getTodo() {
-        return todo;
+    private void setTodos(List<Todo> todos) {
+        this.todos = todos;
+        removeAllComponents();
+        todos.forEach(todo -> addComponent(new TodoLayout(todo, this)));
     }
 
-    public void setTodo(String todo) {
-        this.todo = todo;
+    void addTodo(Todo todo) {
+        repository.save(todo);
+        update();
+    }
+
+    @Override
+    public void todoChanged(Todo todo) {
+        addTodo(todo);
+    }
+
+
+    public void deleteCompleted() {
+        repository.deleteByDone(true);
+        update();
     }
 }
